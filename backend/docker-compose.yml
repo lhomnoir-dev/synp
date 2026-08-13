@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: prompthub-db
+    environment:
+      POSTGRES_USER: prompthub
+      POSTGRES_PASSWORD: prompthub
+      POSTGRES_DB: prompthub
+    ports:
+      - "5432:5432"
+    volumes:
+      - prompthub_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prompthub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: prompthub-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://promptverse:prompthub@db:5432/promptverse
+      SECRET_KEY: change-me-in-production
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  prompthub_pgdata:
