@@ -24,8 +24,9 @@ def get_users(db: Session, skip: int = 0, limit: int = 50) -> list[User]:
     return list(db.scalars(select(User).offset(skip).limit(limit)))
 
 
-def authenticate_user(db: Session, email: str, password: str) -> User | None:
-    user = get_user_by_email(db, email)
+def authenticate_user(db: Session, identifier: str, password: str) -> User | None:
+    # Allow authentication by email or username.
+    user = get_user_by_email(db, identifier) or get_user_by_username(db, identifier)
     if not user or not verify_password(password, user.hashed_password):
         return None
     return user
