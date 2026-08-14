@@ -3,11 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router as api_v1_router
 from app.core.config import settings
+from app.core.database import Base, engine
 
+Base.metadata.create_all(engine)
 app = FastAPI(
     title=settings.project_name,
     version=settings.project_version,
-    description="API REST de PromptHub : partage de prompts, votes, forum d'entraide et test direct de LLM.",
+    description="API REST de Synp : partage de prompts, votes, forum d'entraide et test direct de LLM.",
     openapi_url=f"{settings.api_v1_prefix}/openapi.json",
 )
 
